@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { homePage, contactSubmissions, globalSettings } from "./lib/strapi";
+import { homePage, globalSettings, submitContactForm } from "./lib/strapi";
 import roderBuiltLogo from "./assets/roder-built-logo.svg";
 import {
   FaFacebook,
@@ -56,7 +56,7 @@ function ContactModal({ open, onClose }) {
     setStatus("loading");
     setErrorMsg("");
     try {
-      await contactSubmissions.create({ data: form });
+      await submitContactForm(form);
       setStatus("success");
       setForm({ name: "", email: "", subject: "", message: "" });
     } catch (err) {
@@ -184,7 +184,7 @@ function HeroBlock({ block, onContactOpen }) {
     : null;
   return (
     <div
-      className="hero min-h-[70vh]"
+      className={`hero min-h-[85vh] ${bgSrc ? "" : "bg-base-200"}`}
       style={
         bgSrc
           ? {
@@ -195,28 +195,33 @@ function HeroBlock({ block, onContactOpen }) {
           : {}
       }
     >
-      {bgSrc && <div className="hero-overlay bg-opacity-50 rounded-none" />}
-      <div className="hero-content text-center max-w-2xl relative z-10">
+      {bgSrc && <div className="hero-overlay bg-opacity-60 rounded-none" />}
+      <div className="hero-content text-center max-w-3xl relative z-10">
         <div>
-          <h1 className={`text-5xl font-bold${bgSrc ? " text-white" : ""}`}>
-            {block.heading}
-          </h1>
           {block.subHeading && (
             <p
-              className={`py-4 text-xl font-medium${bgSrc ? " text-white/90" : " text-primary"}`}
+              className={`text-sm font-semibold uppercase tracking-widest mb-4 ${bgSrc ? "text-white/80" : "text-primary"}`}
             >
               {block.subHeading}
             </p>
           )}
+          <h1
+            className={`text-6xl font-bold leading-tight tracking-tight ${bgSrc ? "text-white" : "text-base-content"}`}
+          >
+            {block.heading}
+          </h1>
           {block.content && (
             <p
-              className={`py-2${bgSrc ? " text-white/75" : " text-base-content/70"}`}
+              className={`mt-6 text-lg leading-relaxed max-w-xl mx-auto ${bgSrc ? "text-white/75" : "text-base-content/60"}`}
             >
               {block.content}
             </p>
           )}
-          <button className="btn btn-primary mt-4" onClick={onContactOpen}>
-            Get in touch
+          <button
+            className="btn btn-primary btn-lg mt-8 font-semibold tracking-wide"
+            onClick={onContactOpen}
+          >
+            {block.ctaText || "Get a Free Quote"}
           </button>
         </div>
       </div>
@@ -226,14 +231,30 @@ function HeroBlock({ block, onContactOpen }) {
 
 function FeaturesBlock({ block }) {
   return (
-    <section className="py-20 px-6 bg-base-100">
+    <section className="py-24 px-6 bg-base-100">
       <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-12">
+          <p className="text-primary font-semibold uppercase tracking-widest text-sm mb-2">
+            What We Offer
+          </p>
+          <h2 className="text-3xl font-bold text-base-content">
+            Built Right. Built to Last.
+          </h2>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {block.features?.map((feature, i) => (
-            <div key={i} className="card bg-base-200 shadow-sm">
-              <div className="card-body">
-                <h2 className="card-title">{feature.title}</h2>
-                <p className="text-base-content/70">{feature.description}</p>
+            <div
+              key={i}
+              className="card bg-base-100 border border-base-300 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+            >
+              <div className="card-body gap-3">
+                <div className="w-10 h-1 bg-primary rounded-full" />
+                <h2 className="card-title text-base-content font-bold">
+                  {feature.title}
+                </h2>
+                <p className="text-base-content/60 text-sm leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
             </div>
           ))}
@@ -282,41 +303,52 @@ function GalleryBlock({ block }) {
   const img = images[current];
   const src = img.url?.startsWith("http") ? img.url : `${strapiUrl}${img.url}`;
   return (
-    <section className="py-16 px-6 bg-base-200">
+    <section className="py-24 px-6 bg-neutral">
       <div className="max-w-5xl mx-auto">
         {block.heading && (
-          <h2 className="text-2xl font-bold text-center mb-8">
-            {block.heading}
-          </h2>
+          <div className="text-center mb-10">
+            <p className="text-primary font-semibold uppercase tracking-widest text-sm mb-2">
+              Our Work
+            </p>
+            <h2 className="text-3xl font-bold text-neutral-content">
+              {block.heading}
+            </h2>
+          </div>
         )}
-        <div className="flex flex-col items-center gap-4">
+        <div className="relative rounded-2xl overflow-hidden shadow-2xl">
           <img
             src={src}
             alt={img.alternativeText || img.name || `Project ${current + 1}`}
-            className="rounded-box object-cover w-full max-h-120"
+            className="object-cover w-full max-h-120"
           />
-          <div className="flex items-center gap-4">
-            <button className="btn btn-outline btn-sm" onClick={prev}>
-              &#8249; Prev
-            </button>
-            <span className="text-sm text-base-content/50">
-              {current + 1} / {images.length}
-            </span>
-            <button className="btn btn-outline btn-sm" onClick={next}>
-              Next &#8250;
-            </button>
+          <button
+            onClick={prev}
+            className="absolute left-3 top-1/2 -translate-y-1/2 btn btn-circle btn-neutral opacity-80 hover:opacity-100"
+          >
+            &#8249;
+          </button>
+          <button
+            onClick={next}
+            className="absolute right-3 top-1/2 -translate-y-1/2 btn btn-circle btn-neutral opacity-80 hover:opacity-100"
+          >
+            &#8250;
+          </button>
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-3 py-1 rounded-full">
+            {current + 1} / {images.length}
           </div>
-          <div className="flex flex-wrap justify-center gap-2">
-            {images.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                className={`btn btn-xs btn-circle ${
-                  i === current ? "btn-primary" : "btn-ghost"
-                }`}
-              />
-            ))}
-          </div>
+        </div>
+        <div className="flex flex-wrap justify-center gap-2 mt-5">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                i === current
+                  ? "bg-primary w-6"
+                  : "bg-neutral-content/30 hover:bg-neutral-content/60"
+              }`}
+            />
+          ))}
         </div>
       </div>
     </section>
@@ -353,7 +385,6 @@ function App() {
     globalSettings
       .find({ populate: { socialLinks: true } })
       .then((res) => {
-        console.log("Global response:", JSON.stringify(res, null, 2));
         setSiteGlobal(res?.data ?? res);
       })
       .catch((err) => {
@@ -379,37 +410,88 @@ function App() {
   const hasHero = page.blocks?.some((b) => b.__component === "blocks.hero");
 
   return (
-    <div className="min-h-screen" data-theme="light">
+    <div className="min-h-screen" data-theme="rbc">
       {/* Navbar */}
-      <nav className="flex justify-between navbar bg-base-100 border-b border-base-200 px-6">
-        <div>
-          <img src={roderBuiltLogo} alt={page.title} className="h-10 w-auto" />
+      <nav className="navbar bg-neutral text-neutral-content px-6 shadow-md">
+        <div className="flex-1">
+          <img
+            src={roderBuiltLogo}
+            alt={page.title}
+            className="h-10 w-auto invert brightness-200"
+          />
         </div>
-        <div>
-          <span className="font-bold text-lg ml-2">{page.title}</span>
+        <div className="hidden md:flex">
+          <span className="font-semibold tracking-wide text-neutral-content/80">
+            {page.title}
+          </span>
         </div>
-        <div className="justify-end">
+        <div className="flex-none ml-4">
           <button
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary btn-sm font-semibold tracking-wide"
             onClick={() => setContactOpen(true)}
           >
-            Contact
+            Get a Quote
           </button>
         </div>
       </nav>
 
+      {/* Contact bar */}
+      {(siteGlobal?.phone || siteGlobal?.email) && (
+        <div className="bg-primary text-primary-content flex flex-wrap items-center justify-center gap-6 py-2 px-6 text-sm font-medium">
+          {siteGlobal.phone && (
+            <a
+              href={`tel:${siteGlobal.phone.replace(/\D/g, "")}`}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.36 11.36 0 003.56.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.56 1 1 0 01-.25 1.01l-2.2 2.22z" />
+              </svg>
+              {siteGlobal.phone}
+            </a>
+          )}
+          {siteGlobal.email && (
+            <a
+              href={`mailto:${siteGlobal.email}`}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 2l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z" />
+              </svg>
+              {siteGlobal.email}
+            </a>
+          )}
+        </div>
+      )}
+
       {/* Fallback hero if no hero block is set in Strapi */}
       {!hasHero && (
-        <div className="hero min-h-[70vh] bg-base-200">
-          <div className="hero-content text-center max-w-2xl">
+        <div className="hero min-h-[75vh] bg-base-200">
+          <div className="hero-content text-center max-w-3xl">
             <div>
-              <h1 className="text-5xl font-bold">{page.title}</h1>
-              <p className="py-6 text-base-content/70">{page.description}</p>
+              <p className="text-primary font-semibold uppercase tracking-widest text-sm mb-3">
+                Licensed &amp; Local
+              </p>
+              <h1 className="text-6xl font-bold leading-tight tracking-tight text-base-content">
+                {page.title}
+              </h1>
+              <p className="mt-6 text-lg text-base-content/60 max-w-xl mx-auto leading-relaxed">
+                {page.description}
+              </p>
               <button
-                className="btn btn-primary"
+                className="btn btn-primary btn-lg mt-8 font-semibold tracking-wide"
                 onClick={() => setContactOpen(true)}
               >
-                Get in touch
+                Get a Free Quote
               </button>
             </div>
           </div>
@@ -436,7 +518,7 @@ function App() {
       })}
 
       {/* Footer */}
-      <footer className="footer px-8 py-5 bg-base-200 text-base-content/60 text-sm border-t border-base-300 mt-auto flex items-center justify-between flex-wrap gap-3">
+      <footer className="bg-neutral text-neutral-content px-8 py-6 flex items-center justify-between flex-wrap gap-4 text-sm">
         <div className="flex items-center gap-1">
           {siteGlobal?.socialLinks?.map((link, i) => {
             const Icon = SOCIAL_ICONS[link.platform?.toLowerCase()] ?? FaLink;
@@ -447,14 +529,14 @@ function App() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={link.label ?? link.platform}
-                className="btn btn-ghost btn-square btn-sm text-lg"
+                className="btn btn-ghost btn-square btn-sm text-lg text-neutral-content/70 hover:text-neutral-content"
               >
                 <Icon />
               </a>
             );
           })}
         </div>
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4 text-neutral-content/60">
           {siteGlobal?.phone && (
             <a
               href={`tel:${siteGlobal.phone.replace(/\D/g, "")}`}
@@ -463,6 +545,7 @@ function App() {
               {siteGlobal.phone}
             </a>
           )}
+          {" • "}
           {siteGlobal?.email && (
             <a
               href={`mailto:${siteGlobal.email}`}
@@ -471,8 +554,9 @@ function App() {
               {siteGlobal.email}
             </a>
           )}
+          {" • "}
           <span>
-            © {new Date().getFullYear()} {page.title}. All rights reserved.
+            &copy; {new Date().getFullYear()} {page.title}. All rights reserved.
           </span>
         </div>
       </footer>
