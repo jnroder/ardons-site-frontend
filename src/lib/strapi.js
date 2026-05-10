@@ -6,3 +6,5 @@ const client = strapi({
 });
 
 export const homePage = client.single("home-page");
+export const contactSubmissions = client.collection("contact-submissions");
+export const globalSettings = client.single("global");
