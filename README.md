@@ -1,16 +1,31 @@
-# React + Vite
+# ardons-site-frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for roderbuilt.com. Fetches content from the Strapi backend (`ardons-site`).
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Both this repo and the backend need to be running at the same time.
 
-## React Compiler
+### Prerequisites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js >= 20.x
+- A `.env.local` file in the project root (gitignored) with your local Strapi credentials:
 
-## Expanding the ESLint configuration
+```
+VITE_STRAPI_URL=http://localhost:1337
+VITE_STRAPI_API_TOKEN=<token from your local Strapi admin>
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Generate the token once in your local Strapi admin at `http://localhost:1337/admin` under Settings → API Tokens. It persists until you delete your local Strapi database.
+
+### Start the dev server
+
+```bash
+npm run dev
+```
+
+Runs on `http://localhost:5173`.
+
+## Deployment
+
+Deployments are handled automatically via GitHub Actions on push to `main`. See `.github/workflows/deploy.yml` for the full workflow. Builds the Vite app and rsyncs `dist/` to the server.
