@@ -34,7 +34,9 @@ jobs:
 
       - name: Deploy to server
         run: |
+          SSH_PORT="${{ secrets.SSH_PORT }}"
+          if [ -z "$SSH_PORT" ]; then SSH_PORT=22; fi
           rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }}" \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT" \
             dist/ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html/roderbuilt/
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html/roderbuilt/"
